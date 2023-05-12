@@ -1,3 +1,4 @@
+import { commitRoot } from 'hostConfig';
 import { FiberNode, createWorkInProgress } from './ReactFiber';
 import { beginWork } from './ReactFiberBeginWork';
 import { completeWork } from './ReactFiberCompleteWork';
@@ -45,6 +46,10 @@ function renderRoot(root: FiberRootNode) {
 			}
 		}
 	} while (true);
+	const finishedWork = root.current.alternate;
+	root.finishedWork = finishedWork;
+
+	commitRoot(root);
 }
 
 function workLoop() {
