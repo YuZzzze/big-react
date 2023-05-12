@@ -1,7 +1,8 @@
-import { commitRoot } from 'hostConfig';
 import { FiberNode, createWorkInProgress } from './ReactFiber';
 import { beginWork } from './ReactFiberBeginWork';
+import { commitMutationEffects } from './ReactFiberCommitWork';
 import { completeWork } from './ReactFiberCompleteWork';
+import { MutationMask, NoFlags } from './ReactFiberFlags';
 import { FiberRootNode } from './ReactFiberRoot';
 import { HostRoot } from './ReactWorkTags';
 
@@ -50,6 +51,31 @@ function renderRoot(root: FiberRootNode) {
 	root.finishedWork = finishedWork;
 
 	commitRoot(root);
+}
+
+function commitRoot(root: FiberRootNode) {
+	const finishedWork = root.finishedWork;
+	if (!finishedWork) {
+		return null;
+	}
+
+	// 重置
+	root.finishedWork = null;
+
+	// 判断是否存在三个子阶段需要执行的操作
+	const subtreeHasEffect =
+		(finishedWork.subtreeFlags & MutationMask) !== NoFlags;
+	const rootHasEffect = (finishedWork.flags & MutationMask) !== NoFlags;
+
+	if (subtreeHasEffect || rootHasEffect) {
+		// beforeMutation
+		// mutation
+		root.current = finishedWork;
+		commitMutationEffects(finishedWork);
+		// layout
+	} else {
+		root.current = finishedWork;
+	}
 }
 
 function workLoop() {
