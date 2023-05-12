@@ -5,7 +5,7 @@ import { Flags, NoFlags } from './ReactFiberFlags';
 export class FiberNode {
 	tag: WorkTag;
 	key: Key;
-	type: unknown;
+	type: any;
 	stateNode: any;
 	ref: Ref;
 
@@ -63,6 +63,7 @@ export function createWorkInProgress(
 		wip.stateNode = current.stateNode;
 
 		wip.alternate = current;
+		current.alternate = wip;
 	} else {
 		// update
 		wip.pendingProps = pendingProps;
@@ -70,6 +71,7 @@ export function createWorkInProgress(
 		wip.subtreeFlags = NoFlags;
 	}
 	wip.type = current.type;
+
 	wip.updateQueue = current.updateQueue;
 	wip.child = current.child;
 	wip.memoizedProps = current.memoizedProps;
@@ -88,5 +90,6 @@ export function createFiberFromElement(element: ReactElementType) {
 	}
 
 	const fiber = new FiberNode(fiberTag, props, key);
+	fiber.type = type;
 	return fiber;
 }

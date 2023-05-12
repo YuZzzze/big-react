@@ -49,7 +49,6 @@ function renderRoot(root: FiberRootNode) {
 	} while (true);
 	const finishedWork = root.current.alternate;
 	root.finishedWork = finishedWork;
-
 	commitRoot(root);
 }
 
@@ -66,7 +65,6 @@ function commitRoot(root: FiberRootNode) {
 	const subtreeHasEffect =
 		(finishedWork.subtreeFlags & MutationMask) !== NoFlags;
 	const rootHasEffect = (finishedWork.flags & MutationMask) !== NoFlags;
-
 	if (subtreeHasEffect || rootHasEffect) {
 		// beforeMutation
 		// mutation
@@ -86,7 +84,7 @@ function workLoop() {
 
 function performUnitOfWork(fiber: FiberNode) {
 	const next = beginWork(fiber);
-	fiber.memoizedProps = next && next.pendingProps;
+	fiber.memoizedProps = next?.pendingProps;
 
 	if (next === null) {
 		completeUnitOfWork(fiber);

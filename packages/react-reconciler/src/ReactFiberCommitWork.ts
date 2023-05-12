@@ -42,14 +42,24 @@ function commitMutationEffectsOnFiber(finishedWork: FiberNode) {
 
 function commitPlacement(finishedWork: FiberNode) {
 	if (__DEV__) {
-		console.log('执行Placement');
+		console.warn('执行Placement', finishedWork);
 	}
 
 	const parentFiber = getHostParentFiber(finishedWork);
-	switch (parentFiber.tag) {
-		case HostComponent:
-			const parent = parentFiber.stateNode;
-			appendPlacementNodeIntoContainer(parent, finishedWork);
+	if (parentFiber !== null) {
+		// const parent = parentFiber.stateNode;
+		// appendPlacementNodeIntoContainer(finishedWork, parent);
+		let parent;
+		switch (parentFiber.tag) {
+			case HostComponent:
+				parent = parentFiber.stateNode;
+				appendPlacementNodeIntoContainer(finishedWork, parent);
+				return;
+			case HostRoot:
+				parent = parentFiber.stateNode;
+				appendPlacementNodeIntoContainer(finishedWork, parent.container);
+				return;
+		}
 	}
 }
 
@@ -59,11 +69,12 @@ function getHostParentFiber(fiber: FiberNode) {
 	while (parent) {
 		const parentTag = parent.tag;
 		if (parentTag === HostComponent || parentTag === HostRoot) {
-			return parent.stateNode;
+			return parent;
 		} else {
 			parent = parent.return;
 		}
 	}
+	return null;
 }
 
 function appendPlacementNodeIntoContainer(node: FiberNode, parent: Container) {
@@ -73,10 +84,10 @@ function appendPlacementNodeIntoContainer(node: FiberNode, parent: Container) {
 	} else {
 		const child = node.child;
 		if (child !== null) {
-			appendPlacementNodeIntoContainer(parent, child);
+			appendPlacementNodeIntoContainer(child, parent);
 			let sibling = child.sibling;
 			while (sibling !== null) {
-				appendPlacementNodeIntoContainer(parent, sibling);
+				appendPlacementNodeIntoContainer(child, parent);
 				sibling = sibling.sibling;
 			}
 		}

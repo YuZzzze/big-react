@@ -2,10 +2,11 @@ import { FiberNode } from './ReactFiber';
 import { NoFlags } from './ReactFiberFlags';
 import { HostComponent, HostRoot, HostText } from './ReactWorkTags';
 import {
+	Instance,
 	appendInitialChild,
 	createInstance,
 	createTextInstance
-} from './hostConfig';
+} from 'hostConfig';
 
 export const completeWork = (workInProgress: FiberNode) => {
 	const newProps = workInProgress.pendingProps;
@@ -16,7 +17,7 @@ export const completeWork = (workInProgress: FiberNode) => {
 			if (current !== null && workInProgress.stateNode) {
 				// update
 			} else {
-				const instance = createInstance(workInProgress.type, newProps);
+				const instance = createInstance(workInProgress.type);
 				appendAllChildren(instance, workInProgress);
 				workInProgress.stateNode = instance;
 			}
@@ -26,7 +27,7 @@ export const completeWork = (workInProgress: FiberNode) => {
 			if (current !== null && workInProgress.stateNode) {
 				// update
 			} else {
-				const instance = createTextInstance(newProps.child);
+				const instance = createTextInstance(newProps.children);
 				workInProgress.stateNode = instance;
 			}
 			bubbleProperties(workInProgress);
@@ -41,7 +42,7 @@ export const completeWork = (workInProgress: FiberNode) => {
 	}
 };
 
-function appendAllChildren(parent: FiberNode, workInProgress: FiberNode) {
+function appendAllChildren(parent: Instance, workInProgress: FiberNode) {
 	let node = workInProgress.child;
 	while (node !== null) {
 		if (node.tag === HostComponent || node.tag === HostText) {
@@ -62,6 +63,8 @@ function appendAllChildren(parent: FiberNode, workInProgress: FiberNode) {
 			}
 			node = node.return;
 		}
+		node.sibling.return = node.return;
+		node = node.sibling;
 	}
 }
 
