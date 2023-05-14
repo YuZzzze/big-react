@@ -1,6 +1,11 @@
 import { FiberNode } from './ReactFiber';
 import { NoFlags } from './ReactFiberFlags';
-import { HostComponent, HostRoot, HostText } from './ReactWorkTags';
+import {
+	FunctionComponent,
+	HostComponent,
+	HostRoot,
+	HostText
+} from './ReactWorkTags';
 import {
 	Instance,
 	appendInitialChild,
@@ -33,6 +38,9 @@ export const completeWork = (workInProgress: FiberNode) => {
 			bubbleProperties(workInProgress);
 			return null;
 		case HostRoot:
+			bubbleProperties(workInProgress);
+			return null;
+		case FunctionComponent:
 			bubbleProperties(workInProgress);
 			return null;
 		default:

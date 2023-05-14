@@ -1,8 +1,14 @@
 import { ReactElementType } from 'shared/ReactTypes';
-import { HostComponent, HostRoot, HostText } from './ReactWorkTags';
+import {
+	FunctionComponent,
+	HostComponent,
+	HostRoot,
+	HostText
+} from './ReactWorkTags';
 import { FiberNode } from './ReactFiber';
 import { processUpdateQueue } from './ReactFiberUpdateQueue';
 import { mountChildFibers, reconcileChildFibers } from './ReactChildFiber';
+import { renderWithHooks } from './ReactFiberHooks';
 
 function reconcileChildren(
 	workInProgress: FiberNode,
@@ -30,6 +36,8 @@ export const beginWork = (workInProgress: FiberNode) => {
 			return updateHostComponent(workInProgress);
 		case HostText:
 			return null;
+		case FunctionComponent:
+			return updateFunctionComponent(workInProgress);
 		default:
 			if (__DEV__) {
 				console.error('beginWork未处理的情况');
@@ -54,6 +62,12 @@ function updateHostRoot(workInProgress: FiberNode) {
 function updateHostComponent(workInProgress: FiberNode) {
 	const nextProps = workInProgress.pendingProps;
 	const nextChildren = nextProps.children;
+	reconcileChildren(workInProgress, nextChildren);
+	return workInProgress.child;
+}
+
+function updateFunctionComponent(workInProgress: FiberNode) {
+	const nextChildren = renderWithHooks(workInProgress);
 	reconcileChildren(workInProgress, nextChildren);
 	return workInProgress.child;
 }
