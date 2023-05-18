@@ -4,11 +4,11 @@
 	"description": "",
 	"module": "index.ts",
 	"dependencies": {
-		"shared": "workspace*",
-		"react-reconciler": "workspace*"
+		"shared": "workspace:*",
+		"react-reconciler": "workspace:*"
 	},
 	"peerDependencies": {
-		"react": "workspace*"
+		"react": "workspace:*"
 	},
 	"keywords": [],
 	"author": "",
