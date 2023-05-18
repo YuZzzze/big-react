@@ -4,12 +4,12 @@
 | 类型       | 内容                                   | 完成情况 |
 | ---------- | -------------------------------------- | -------- |
 | React      | JSX 转换                               | ✅       |
-| React      | React.isValidElement                   | ⬜       |
+| React      | React.isValidElement                   | ✅       |
 | ReactDOM   | 浏览器环境 DOM 的插入                  | ✅       |
 | ReactDOM   | 浏览器环境 DOM 的移动                  | ⬜       |
 | ReactDOM   | 浏览器环境 DOM 的属性变化              | ⬜️      |    
 | ReactDOM   | 浏览器环境 DOM 的删除                  | ⬜       |
-| ReactDOM   | ReactTestUtils                         | ⬜       |
+| ReactDOM   | ReactTestUtils                         | ✅       |
 | ReactNoop  | ReactNoop Renderer                     | ⬜       |
 | Reconciler | Fiber 架构                             | ✅       |
 | Reconciler | 事件模型                               | ⬜       |
