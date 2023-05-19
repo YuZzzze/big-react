@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import replace from '@rollup/plugin-replace';
-import { resolvePkgPath } from '../utils';
+import { resolvePkgPath } from '../rollup/utils';
 import path from 'path';
-console.log(resolvePkgPath('react'));
+console.log(resolvePkgPath('react'), 111);
 
 // https://vitejs.dev/config/
 export default defineConfig({
