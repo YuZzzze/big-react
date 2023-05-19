@@ -53,7 +53,9 @@ function renderRoot(root: FiberRootNode) {
 }
 
 function commitRoot(root: FiberRootNode) {
-	console.warn('执行commitRoot', root);
+	if (__DEV__) {
+		console.warn('执行commitRoot', root);
+	}
 
 	const finishedWork = root.finishedWork;
 	if (!finishedWork) {
@@ -79,7 +81,9 @@ function commitRoot(root: FiberRootNode) {
 }
 
 function workLoop() {
-	console.warn('workLoop');
+	if (__DEV__) {
+		console.warn('workLoop');
+	}
 
 	while (workInProgress !== null) {
 		performUnitOfWork(workInProgress);

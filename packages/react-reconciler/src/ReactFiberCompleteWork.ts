@@ -1,5 +1,5 @@
 import { FiberNode } from './ReactFiber';
-import { NoFlags } from './ReactFiberFlags';
+import { NoFlags, Update } from './ReactFiberFlags';
 import {
 	FunctionComponent,
 	HostComponent,
@@ -12,6 +12,10 @@ import {
 	createInstance,
 	createTextInstance
 } from 'hostConfig';
+
+function markUpdate(workInProgress: FiberNode) {
+	workInProgress.flags |= Update;
+}
 
 export const completeWork = (workInProgress: FiberNode) => {
 	const newProps = workInProgress.pendingProps;
@@ -31,6 +35,11 @@ export const completeWork = (workInProgress: FiberNode) => {
 		case HostText:
 			if (current !== null && workInProgress.stateNode) {
 				// update
+				const newText = newProps.children;
+				const oldText = current.memoizedProps.children;
+				if (oldText !== newText) {
+					markUpdate(workInProgress);
+				}
 			} else {
 				const instance = createTextInstance(newProps.children);
 				workInProgress.stateNode = instance;

@@ -22,6 +22,7 @@ export class FiberNode {
 
 	flags: Flags;
 	subtreeFlags: Flags;
+	deletions: FiberNode[] | null;
 
 	alternate: FiberNode | null;
 
@@ -47,6 +48,7 @@ export class FiberNode {
 		// Effect
 		this.flags = NoFlags;
 		this.subtreeFlags = NoFlags;
+		this.deletions = null;
 
 		this.alternate = null;
 	}
