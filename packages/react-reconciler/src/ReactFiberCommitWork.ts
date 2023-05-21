@@ -1,7 +1,23 @@
-import { Container, appendChildToContainer } from 'hostConfig';
+import {
+	Container,
+	appendChildToContainer,
+	commitUpdate,
+	removeChild
+} from 'hostConfig';
 import { FiberNode } from './ReactFiber';
-import { MutationMask, NoFlags, Placement } from './ReactFiberFlags';
-import { HostComponent, HostRoot, HostText } from './ReactWorkTags';
+import {
+	ChildDeletion,
+	MutationMask,
+	NoFlags,
+	Placement,
+	Update
+} from './ReactFiberFlags';
+import {
+	FunctionComponent,
+	HostComponent,
+	HostRoot,
+	HostText
+} from './ReactWorkTags';
 
 let nextEffect: FiberNode | null = null;
 
@@ -38,6 +54,22 @@ function commitMutationEffectsOnFiber(finishedWork: FiberNode) {
 		commitPlacement(finishedWork);
 		finishedWork.flags &= ~Placement;
 	}
+
+	if ((flags & Update) !== NoFlags) {
+		commitUpdate(finishedWork);
+		finishedWork.flags &= ~Update;
+	}
+
+	if ((flags & ChildDeletion) !== NoFlags) {
+		const deletions = finishedWork.deletions;
+		if (deletions !== null) {
+			deletions.forEach((childDeletion) => {
+				commitDeletion(childDeletion);
+			});
+		}
+
+		finishedWork.flags &= ~ChildDeletion;
+	}
 }
 
 function commitPlacement(finishedWork: FiberNode) {
@@ -47,8 +79,6 @@ function commitPlacement(finishedWork: FiberNode) {
 
 	const parentFiber = getHostParentFiber(finishedWork);
 	if (parentFiber !== null) {
-		// const parent = parentFiber.stateNode;
-		// appendPlacementNodeIntoContainer(finishedWork, parent);
 		let parent;
 		switch (parentFiber.tag) {
 			case HostComponent:
@@ -60,6 +90,74 @@ function commitPlacement(finishedWork: FiberNode) {
 				appendPlacementNodeIntoContainer(finishedWork, parent.container);
 				return;
 		}
+	}
+}
+
+function commitDeletion(childToDeletion: FiberNode) {
+	let rootHostNode: FiberNode | null = null;
+
+	commitNestedComponent(childToDeletion, (unmountFiber) => {
+		switch (unmountFiber.tag) {
+			case HostComponent:
+				if (rootHostNode === null) {
+					rootHostNode = unmountFiber;
+				}
+				// TODO 解绑Ref
+				break;
+			case HostText:
+				if (rootHostNode === null) {
+					rootHostNode = unmountFiber;
+				}
+				break;
+			case FunctionComponent:
+				// TODO useEffect unmount
+				break;
+			default:
+				if (__DEV__) {
+					console.warn('未处理的unmount类型', unmountFiber);
+				}
+
+				break;
+		}
+	});
+
+	if (rootHostNode !== null) {
+		const hostParent = getHostParentFiber(childToDeletion);
+		if (hostParent !== null) {
+			removeChild(hostParent.stateNode, childToDeletion.stateNode);
+		}
+	}
+	childToDeletion.return = null;
+	childToDeletion.child = null;
+}
+
+function commitNestedComponent(
+	root: FiberNode,
+	onCommitUnount: (fiber: FiberNode) => void
+) {
+	let node = root;
+	while (true) {
+		onCommitUnount(node);
+
+		if (node.child !== null) {
+			node.child.return = node;
+			node = node.child;
+			continue;
+		}
+
+		if (node === root) {
+			return;
+		}
+
+		while (node.sibling === null) {
+			if (node.return === null || node.return === root) {
+				return;
+			}
+			node = node.return;
+		}
+
+		node.sibling.return = node;
+		node = node.sibling;
 	}
 }
 
